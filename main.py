@@ -1,101 +1,157 @@
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List
+from fastapi.responses import HTMLResponse
+
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, Column, String, Float, Integer, ForeignKey
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 app = FastAPI(
     title="Dynamic Counterpick API",
-    description="Calculates a complete 5-hero counterpick composition.",
+    description="Calculates the ideal 5-hero counterpick composition.",
     version="1.0.0"
 )
+
+# load .env
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# engine creates a connection to the database
+# create a session factory, which creates new database session objects
+# create a base class for our models
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+class Hero(Base):
+    __tablename__ = "heroes"
+    name = Column(String, primary_key=True, index=True)
+    role = Column(String)
+    meta_weight = Column(Float)
+
+class Matchup(Base):
+    __tablename__ = "matchups"
+    id = Column(Integer, primary_key=True, index=True)
+    hero_name = Column(String, ForeignKey("heroes.name"))
+    enemy_name = Column(String, ForeignKey("heroes.name"))
+    score_modifier = Column(Integer)
 
 class EnemyComposition(BaseModel):
     tanks: List[str]
     dps: List[str]
     supports: List[str]
-
-# 1. Map every hero to their respective role along with your meta weights
-HERO_ROLES = {
-    # Tanks
-    "D.Mon": "Tank", "D.Va": "Tank", "Domina": "Tank", "Doomfist": "Tank", 
-    "Emre": "Tank", "Hazard": "Tank", "Junker Queen": "Tank", "Mauga": "Tank", 
-    "Orisa": "Tank", "Ramattra": "Tank", "Reinhardt": "Tank", "Roadhog": "Tank", 
-    "Shion": "Tank", "Sierra": "Tank", "Sigma": "Tank", "Winston": "Tank", 
-    "Wrecking Ball": "Tank", "Zarya": "Tank",
     
-    # Damage (DPS)
-    "Anran": "DPS", "Ashe": "DPS", "Bastion": "DPS", "Cassidy": "DPS", 
-    "Echo": "DPS", "Freja": "DPS", "Genji": "DPS", "Hanzo": "DPS", 
-    "Junkrat": "DPS", "Mei": "DPS", "Pharah": "DPS", "Reaper": "DPS", 
-    "Sojourn": "DPS", "Soldier: 76": "DPS", "Sombra": "DPS", "Symmetra": "DPS", 
-    "Torbjörn": "DPS", "Tracer": "DPS", "Vendetta": "DPS", "Venture": "DPS", 
-    "Widowmaker": "DPS",
-    
-    # Support
-    "Ana": "Support", "Baptiste": "Support", "Brigitte": "Support", "Illari": "Support", 
-    "Jetpack Cat": "Support", "Juno": "Support", "Kiriko": "Support", "Lifeweaver": "Support", 
-    "Lúcio": "Support", "Mercy": "Support", "Mizuki": "Support", "Moira": "Support", 
-    "Wuyang": "Support", "Zenyatta": "Support"
-}
 
-META_WEIGHTS = {
-    "D.Mon": 0.8, "Ana": 1.0, "Anran": 1.0, "Ashe": 0.85, "Baptiste": 0.8,
-    "Bastion": 1.15, "Brigitte": 1.0, "Cassidy": 1.15, "D.Va": 1.15, "Domina": 0.7,
-    "Doomfist": 0.85, "Echo": 1.0, "Emre": 1.15, "Freja": 1.3, "Genji": 0.85,
-    "Hanzo": 0.85, "Hazard": 1.0, "Illari": 0.85, "Jetpack Cat": 1.45, "Junker Queen": 0.7,
-    "Junkrat": 0.35, "Juno": 1.15, "Kiriko": 1.8, "Lifeweaver": 0.55, "Lúcio": 1.15,
-    "Mauga": 1.5, "Mei": 1.15, "Mercy": 0.7, "Mizuki": 1.0, "Moira": 0.7,
-    "Orisa": 1.0, "Pharah": 1.15, "Ramattra": 1.45, "Reaper": 1.0, "Reinhardt": 0.7,
-    "Roadhog": 0.85, "Shion": 1.15, "Sierra": 0.7, "Sigma": 1.5, "Sojourn": 1.45,
-    "Soldier: 76": 0.55, "Sombra": 0.55, "Symmetra": 1.3, "Torbjörn": 0.8, "Tracer": 1.3,
-    "Vendetta": 1.15, "Venture": 0.85, "Widowmaker": 1.0, "Winston": 0.7,
-    "Wrecking Ball": 1.0, "Wuyang": 1.0, "Zarya": 1.1, "Zenyatta": 0.7
-}
+@app.get("/ui", response_class=HTMLResponse)
+def get_ui():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Overwatch Counterpick Generator</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+            .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+            label { font-weight: bold; display: block; margin-top: 10px; }
+            input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+            button { background: #28a745; color: white; border: none; padding: 10px 15px; margin-top: 15px; cursor: pointer; border-radius: 4px; }
+            pre { background: #eef; padding: 10px; border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Overwatch Counterpick Generator</h2>
+            <label>Tank (comma-separated):</label>
+            <input type="text" id="tank" value="Winston">
+            
+            <label>DPS (comma-separated):</label>
+            <input type="text" id="dps" value="Genji, Tracer">
+            
+            <label>Supports (comma-separated):</label>
+            <input type="text" id="supports" value="Moira, Zenyatta">
+            
+            <button onclick="calculate()">Get Counter Composition</button>
+            
+            <h3>Recommended Team:</h3>
+            <pre id="output">Submit team above to calculate...</pre>
+        </div>
 
-MATCHUP_SCORES = {
-    "Winston": {"Genji": 50, "Widowmaker": 40, "Reaper": -40, "Bastion": -50},
-    "Reaper": {"Winston": 50, "Roadhog": 40, "Pharah": -50, "Domina": 20},
-    "Cassidy": {"Tracer": 40, "Genji": 30},
-    "Kiriko": {"Ana": 20, "Zenyatta": 30},
-    "D.Va": {"Winston": 30, "Pharah": 40}
-}
+        <script>
+            async function calculate() {
+                const tank = document.getElementById('tank').value.split(',').map(s => s.trim());
+                const dps = document.getElementById('dps').value.split(',').map(s => s.trim());
+                const supports = document.getElementById('supports').value.split(',').map(s => s.trim());
+
+                const response = await fetch('/api/v1/calculate-composition/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tanks: tank, dps: dps, supports: supports })
+                });
+
+                const data = await response.json();
+                document.getElementById('output').textContent = JSON.stringify(data.recommended_composition, null, 2);
+            }
+        </script>
+    </body>
+    </html>
+    """
 
 @app.post("/api/v1/calculate-composition/")
-def calculate_composition(enemy_team: EnemyComposition):
-    enemies = enemy_team.tanks + enemy_team.dps + enemy_team.supports
+def calculate_composition(enemy_team: EnemyComposition, db: Session = Depends(get_db)):
+    enemies = enemy_team.tanks + enemy_team.dps + enemy_team.supports # enemies is a list of strings
     
-    # Score every single hero in the game against this enemy comp
+    all_heroes = db.query(Hero).all()
+    
+    # relevant_matchups only grabs the matchups where the enemy is in the provided enemy composition (enemies)
+    relevant_matchups = db.query(Matchup).filter(Matchup.enemy_name.in_(enemies)).all()
+
+    # 3. Group the matchup scores for fast lookup
+    matchup_dict = {}
+    for m in relevant_matchups:
+        if m.hero_name not in matchup_dict:
+            matchup_dict[m.hero_name] = 0
+        matchup_dict[m.hero_name] += m.score_modifier
+        
     scored_heroes = {}
     
-    for hero in META_WEIGHTS.keys():
-        matchups = MATCHUP_SCORES.get(hero, {})
-        score = 0
+    # 4. Calculate scores using database objects
+    for hero in all_heroes:
+        # Get the accumulated score from the database matchups, default to 0
+        score = matchup_dict.get(hero.name, 0)
         
-        for enemy in enemies:
-            if enemy in matchups:
-                score += matchups[enemy]
-                
-        # Base multiplier + fallback so unmapped heroes are evaluated strictly by meta weight
-        meta_multiplier = META_WEIGHTS.get(hero, 1.0)
-        final_score = (score + 100) * meta_multiplier # Offset ensures even neutral heroes get ranked by meta
+        final_score = (score + 100) * hero.meta_weight
         
-        role = HERO_ROLES.get(hero, "Unknown")
-        if role not in scored_heroes:
-            scored_heroes[role] = []
+        if hero.role not in scored_heroes:
+            scored_heroes[hero.role] = []
             
-        scored_heroes[role].append({"hero": hero, "score": round(final_score, 1)})
+        scored_heroes[hero.role].append({"hero": hero.name, "score": round(final_score, 1)})
         
-    # Sort each role by highest score descending
+    # 5. Sort the results
     for role in scored_heroes:
         scored_heroes[role] = sorted(scored_heroes[role], key=lambda x: x["score"], reverse=True)
         
-    # Assemble the ideal 5-player composition (1 Tank, 2 DPS, 2 Supports)
-    recommended_comp = {
+    top_hitscan = scored_heroes.get("Hitscan", [])[:1]
+    top_flex = scored_heroes.get("Flex", [])[:1]
+    
+    ideal_dps = sorted(top_hitscan + top_flex, key=lambda x: x["score"], reverse=True)
+        
+    # 6. Format the 1 Tank, 2 DPS, 2 Support output
+    comp_format = {
         "Tank": scored_heroes.get("Tank", [])[:1],
-        "DPS": scored_heroes.get("DPS", [])[:2],
+        "DPS": ideal_dps,
         "Support": scored_heroes.get("Support", [])[:2]
     }
     
     return {
         "enemy_analyzed": enemies,
-        "recommended_composition": recommended_comp
+        "recommended_composition": comp_format
     }
