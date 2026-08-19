@@ -61,23 +61,38 @@ def get_ui():
         <style>
             body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
             .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-            label { font-weight: bold; display: block; margin-top: 10px; }
-            input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-            button { background: #28a745; color: white; border: none; padding: 10px 15px; margin-top: 15px; cursor: pointer; border-radius: 4px; }
-            pre { background: #eef; padding: 10px; border-radius: 4px; }
+            label { font-weight: bold; display: block; margin-top: 15px; }
+            select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border-radius: 4px; }
+            button { background: #28a745; color: white; border: none; padding: 10px 15px; margin-top: 20px; cursor: pointer; border-radius: 4px; width: 100%; font-size: 16px; }
+            button:hover { background: #218838; }
+            pre { background: #eef; padding: 10px; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }
+            .role-group { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd; }
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>Overwatch Counterpick Generator</h2>
-            <label>Tank (comma-separated):</label>
-            <input type="text" id="tank" value="Winston">
+            <h2>Enemy Composition</h2>
             
-            <label>DPS (comma-separated):</label>
-            <input type="text" id="dps" value="Genji, Tracer">
+            <div class="role-group">
+                <label>Tank:</label>
+                <select id="tank1"></select>
+            </div>
             
-            <label>Supports (comma-separated):</label>
-            <input type="text" id="supports" value="Moira, Zenyatta">
+            <div class="role-group">
+                <label>DPS 1:</label>
+                <select id="dps1"></select>
+                
+                <label>DPS 2:</label>
+                <select id="dps2"></select>
+            </div>
+            
+            <div class="role-group">
+                <label>Support 1:</label>
+                <select id="sup1"></select>
+                
+                <label>Support 2:</label>
+                <select id="sup2"></select>
+            </div>
             
             <button onclick="calculate()">Get Counter Composition</button>
             
@@ -86,15 +101,45 @@ def get_ui():
         </div>
 
         <script>
+            // Hero rosters for dynamic population
+            const tanks = ["D.Mon", "D.Va", "Domina", "Doomfist", "Hazard", "Junker Queen", "Mauga", "Orisa", "Ramattra", "Reinhardt", "Roadhog", "Sigma", "Winston", "Wrecking Ball", "Zarya"];
+            const dps = ["Anran", "Ashe", "Bastion", "Cassidy", "Echo", "Emre", "Freja", "Genji", "Hanzo", "Junkrat", "Mei", "Pharah", "Reaper", "Shion", "Sierra", "Sojourn", "Soldier: 76", "Sombra", "Symmetra", "Torbjörn", "Tracer", "Vendetta", "Venture", "Widowmaker"];
+            const supports = ["Ana", "Baptiste", "Brigitte", "Illari", "Jetpack Cat", "Juno", "Kiriko", "Lifeweaver", "Lúcio", "Mercy", "Mizuki", "Moira", "Wuyang", "Zenyatta"];
+
+            // Populates a select element with options
+            function populateDropdown(elementId, heroList) {
+                const select = document.getElementById(elementId);
+                heroList.sort().forEach(hero => {
+                    const option = document.createElement("option");
+                    option.value = hero;
+                    option.textContent = hero;
+                    select.appendChild(option);
+                });
+            }
+
+            // Populate on page load
+            window.onload = () => {
+                populateDropdown("tank1", tanks);
+                populateDropdown("dps1", dps);
+                populateDropdown("dps2", dps);
+                populateDropdown("sup1", supports);
+                populateDropdown("sup2", supports);
+                
+                // Set some default selections so they aren't all identical
+                document.getElementById('dps2').selectedIndex = 1;
+                document.getElementById('sup2').selectedIndex = 1;
+            };
+
             async function calculate() {
-                const tank = document.getElementById('tank').value.split(',').map(s => s.trim());
-                const dps = document.getElementById('dps').value.split(',').map(s => s.trim());
-                const supports = document.getElementById('supports').value.split(',').map(s => s.trim());
+                // Grab the selected values and format them into the required arrays
+                const tankArr = [document.getElementById('tank1').value];
+                const dpsArr = [document.getElementById('dps1').value, document.getElementById('dps2').value];
+                const supportsArr = [document.getElementById('sup1').value, document.getElementById('sup2').value];
 
                 const response = await fetch('/api/v1/calculate-composition/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tanks: tank, dps: dps, supports: supports })
+                    body: JSON.stringify({ tanks: tankArr, dps: dpsArr, supports: supportsArr })
                 });
 
                 const data = await response.json();

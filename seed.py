@@ -31,7 +31,7 @@ META_WEIGHTS = {
     "Bastion": 1.15, "Brigitte": 1.0, "Cassidy": 1.15, "D.Va": 1.15, "Domina": 0.7,
     "Doomfist": 0.85, "Echo": 1.0, "Emre": 1.15, "Freja": 1.3, "Genji": 0.85,
     "Hanzo": 0.85, "Hazard": 1.0, "Illari": 0.85, "Jetpack Cat": 1.35, "Junker Queen": 0.7,
-    "Junkrat": 0.35, "Juno": 1.15, "Kiriko": 1.8, "Lifeweaver": 0.55, "Lúcio": 1.15,
+    "Junkrat": 0.45, "Juno": 1.15, "Kiriko": 1.8, "Lifeweaver": 0.55, "Lúcio": 1.15,
     "Mauga": 1.5, "Mei": 1.15, "Mercy": 0.7, "Mizuki": 1.0, "Moira": 0.7,
     "Orisa": 1.0, "Pharah": 1.15, "Ramattra": 1.45, "Reaper": 1.0, "Reinhardt": 0.7,
     "Roadhog": 0.85, "Shion": 1.25, "Sierra": 0.7, "Sigma": 1.5, "Sojourn": 1.45,
@@ -40,26 +40,22 @@ META_WEIGHTS = {
     "Wrecking Ball": 1.0, "Wuyang": 1.0, "Zarya": 1.1, "Zenyatta": 0.7
 }
 
-# Updated Matchup Scores
 MATCHUP_SCORES = {
     # Tanks
     "D.Mon": {"Sigma": 50, "Ramattra": -50},
-    "D.Va": {"Winston": 30, "Pharah": 40, "Bastion": 20, "Mauga": 20, "Zarya": -60, "Anran": -20, "Echo": -15, "Vendetta": -15, "Brigitte": -20},
+    "D.Va": {"Winston": 30, "Pharah": 40, "Bastion": 20, "Mauga": 20, "Zarya": -60, "Anran": -20, "Echo": -15, "Vendetta": -15, "Brigitte": -30, "Mizuki": -25, "Jetpack Cat": 25},
     "Domina": {"Mauga": -40, "Ramattra": -40, "Reaper": -20},
-    "Doomfist": {"Sigma": -40, "Brigitte": -30},
-    "Hazard": {"Winston": 40, "Orisa": -30, "Brigitte": 25},
+    "Doomfist": {"Sigma": -40, "Brigitte": -30, "Mizuki": -20},
+    "Hazard": {"Winston": 40, "Orisa": -30, "Brigitte": 25, "Mizuki": -20},
     "Junker Queen": {"Winston": 30},
-    "Mauga": {"Reaper": -30, "Sigma": -40, "D.Va": -20, "Mei": -30, "Domina": 40, "Ramattra": 30, "Roadhog": 70, "Winston": 70,
-     "Sojourn": -30, "Bastion": 20, "Pharah": 30, "Jetpack Cat": 30},
+    "Mauga": {"Reaper": -30, "Sigma": -40, "D.Va": -20, "Mei": -30, "Domina": 40, "Ramattra": 30, "Roadhog": 70, "Winston": 70, "Sojourn": -30, "Bastion": 20, "Pharah": 30, "Jetpack Cat": 30},
     "Orisa": {"Zarya": -40, "Hazard": 30, "Reinhardt": 60, "Roadhog": 50},
     "Ramattra": {"Domina": 40, "D.Mon": 50, "Mauga": -30, "Reinhardt": 50, "Zarya": 30, "Sigma": 30},
     "Reinhardt": {"Sigma": 50, "Zarya": 20, "Orisa": -60, "Roadhog": -30, "Ramattra": -50, "Bastion": -40, "Ana": -25, "Zenyatta": -30},
     "Roadhog": {"Reinhardt": 30, "Mauga": -70, "Reaper": -20, "Sigma": -20, "Winston": 40, "Orisa": -50, "Ana": -60, "Zenyatta": -25},
     "Sigma": {"Zarya": -50, "Mauga": 40, "D.Mon": -50, "Doomfist": 40, "Reinhardt": -50, "Roadhog": 20, "Symmetra": -40, "Ramattra": -30},
-    "Winston": {"D.Va": -30, "Roadhog": -40, "Genji": 40, "Widowmaker": 40, "Reaper": -40, "Bastion": -50, "Hazard": -40,
-             "Junker Queen": -30, "Mauga": -70, "Wrecking Ball": -10, "Jetpack Cat": -10, "Cassidy": -20, "Freja": -30,
-               "Torbjörn": -40, "Vendetta": -20, "Brigitte": -30, "Soldier: 76": 15},
-    "Wrecking Ball": {"Winston": 10, "Sombra": -50, "Brigitte": -20, "Mizuki": -40},
+    "Winston": {"D.Va": -30, "Roadhog": -40, "Genji": 40, "Widowmaker": 40, "Reaper": -40, "Bastion": -50, "Hazard": -40, "Junker Queen": -30, "Mauga": -70, "Wrecking Ball": -10, "Jetpack Cat": -10, "Cassidy": -20, "Freja": -30, "Torbjörn": -40, "Vendetta": -20, "Brigitte": -40, "Soldier: 76": 15, "Mizuki": -30},
+    "Wrecking Ball": {"Winston": 10, "Sombra": -50, "Brigitte": -30, "Mizuki": -30},
     "Zarya": {"D.Va": 60, "Sigma": 50, "Reinhardt": -20, "Orisa": 40, "Genji": 30, "Ramattra": -30},
 
     # Hitscan DPS 
@@ -75,69 +71,82 @@ MATCHUP_SCORES = {
     "Widowmaker": {"Winston": -40, "Pharah": 30},
 
     # Flex DPS
-    "Anran": {"Genji": 20, "D.Va": 20},
-    "Echo": {"D.Va": 15, "Junkrat": 40},
-    "Genji": {"Zarya": -30, "Winston": -40, "Anran": -20, "Venture": -50, "Juno": -50, "Moira": -30},
+    "Anran": {"Genji": 20, "D.Va": 20, "Mizuki": -20},
+    "Echo": {"D.Va": 15, "Junkrat": 40, "Mizuki": -20},
+    "Genji": {"Zarya": -30, "Winston": -40, "Anran": -20, "Venture": -50, "Juno": -50, "Moira": -30, "Mizuki": -10},
     "Junkrat": {"Pharah": -50, "Echo": -40},
     "Mei": {"Pharah": -40, "Mauga": 30},
-    "Pharah": {"D.Va": -40, "Ashe": -40, "Bastion": -30, "Emre": -40, "Widowmaker": -30, "Freja": -30,
-                "Soldier: 76": -40, "Junkrat": 50, "Mei": 40, "Reaper": 50, "Shion": -20, "Mauga": -30, "Jetpack Cat": -30},
-    "Reaper": {"Winston": 40, "Roadhog": 20, "Pharah": -50, "Domina": 20, "Mauga": 30, "Cassidy": -30},
-    "Shion": {"Pharah": 20},
-    "Sombra": {"Wrecking Ball": 50},
+    "Pharah": {"D.Va": -40, "Ashe": -40, "Bastion": -30, "Emre": -40, "Widowmaker": -30, "Freja": -30, "Soldier: 76": -40, "Junkrat": 50, "Mei": 40, "Reaper": 50, "Shion": -20, "Mauga": -30, "Jetpack Cat": -30},
+    "Reaper": {"Winston": 40, "Roadhog": 20, "Pharah": -50, "Domina": 20, "Mauga": 30, "Cassidy": -30, "Mizuki": -20},
+    "Shion": {"Pharah": 20, "Mizuki": -20},
+    "Sombra": {"Wrecking Ball": 50, "Mizuki": -20},
     "Symmetra": {"Sigma": 40},
-    "Tracer": {"Cassidy": -40},
+    "Tracer": {"Cassidy": -40, "Mizuki": -20},
     "Torbjörn": {"Winston": 40},
-    "Vendetta": {"Winston": 20, "D.Va": 15},
-    "Venture": {"Cassidy": -30},
+    "Vendetta": {"Winston": 20, "D.Va": 15, "Mizuki": -20},
+    "Venture": {"Cassidy": -30, "Genji": 50, "Mizuki": -20},
 
     # Support
     "Ana": {"Reinhardt": 25, "Roadhog": 60, "Kiriko": -20},
     "Baptiste": {},
-    "Brigitte": {"Winston": 30, "Wrecking Ball": 20, "D.Va": 20, "Doomfist": 30, "Hazard": -25},
+    "Brigitte": {"Winston": 40, "Wrecking Ball": 30, "D.Va": 30, "Doomfist": 30, "Hazard": -25},
     "Illari": {},
-    "Jetpack Cat": {"Emre": -20, "Ashe": -30, "Bastion": -20, "Cassidy": -15, "Winston": 10, "Pharah": 30, "Mauga": -30},
-    "Juno": {},
+    "Jetpack Cat": {"Emre": -20, "Ashe": -30, "Bastion": -20, "Cassidy": -15, "Winston": 10, "Pharah": 30, "Mauga": -30, "D.Va": -25},
+    "Juno": {"Genji": 50},
     "Kiriko": {"Ana": 20, "Zenyatta": 30},
     "Lifeweaver": {},
     "Lúcio": {},
     "Mercy": {},
-    "Mizuki": {"Wrecking Ball": 40},
+    "Mizuki": {
+        "Wrecking Ball": 30, 
+        "Winston": 30, 
+        "D.Va": 25, 
+        "Doomfist": 20, 
+        "Hazard": 20, 
+        "Anran": 20, 
+        "Tracer": 20,
+        "Reaper": 20, 
+        "Sombra": 20, 
+        "Genji": 10, 
+        "Venture": 20, 
+        "Echo": 20, 
+        "Vendetta": 20, 
+        "Shion": 20
+    },
     "Moira": {"Genji": 30},
     "Wuyang": {},
     "Zenyatta": {"Reinhardt": 30, "Roadhog": 25, "Kiriko": -30}
 }
 
 def seed_db():
-    # Verify tables exist
+
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
     try:
-        # 1. Clear any existing data so we don't duplicate
-        print("Clearing old data...")
+        # delete old data
+        print("Deleting old data...")
         db.query(Matchup).delete()
         db.query(Hero).delete()
         db.commit()
 
-        # 2. Insert Heroes
-        print("Inserting heroes...")
+        # add roles and weights
+        print("Adding new heroes and matchups...")
         for hero_name, role in HERO_ROLES.items():
             weight = META_WEIGHTS.get(hero_name, 1.0)
             db.add(Hero(name=hero_name, role=role, meta_weight=weight))
         db.commit()
 
-        # 3. Insert Matchups
-        print("Inserting matchups...")
+        # add matchups
         for hero_name, matchups in MATCHUP_SCORES.items():
             for enemy_name, score in matchups.items():
                 db.add(Matchup(hero_name=hero_name, enemy_name=enemy_name, score_modifier=score))
         db.commit()
 
-        print("✅ Database successfully seeded!")
+        print("Seed successful!")
 
     except Exception as e:
-        print(f"❌ Error seeding database: {e}")
+        print(f"ERROR SEEDING: {e}")
         db.rollback()
     finally:
         db.close()
